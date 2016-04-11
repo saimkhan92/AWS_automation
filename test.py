@@ -4,22 +4,29 @@ import boto3
 ec2 = boto3.resource("ec2")
 
 def show_running_instances():
+    print("\n")
     instances = ec2.instances.filter(Filters=[{'Name': 'instance-state-name', 'Values': ['running']}])
     for instance in instances:
         print(instance.id, instance.instance_type)
+        print("\n")
 
 def show_instance_status():
+    print("\n")
     for status in ec2.meta.client.describe_instance_status()['InstanceStatuses']:
-        print(type(status))
+        #print(type(status))
         print("INSTANCE ID"+"     "+"AVAILABILITY ZONE"+"     "+"STATUS"+"     "+"SYSTEM CHECKS(OK or IMPAIRED)"+"\n")
         print(status["InstanceId"]+"         "+status['AvailabilityZone']+"         "+status['InstanceState']["Name"]+"         "+status['SystemStatus']['Status']+"\n")
-
+        print("\n")
+        
 def show_stopped_instances():
+    print("\n")
     instances = ec2.instances.filter(Filters=[{'Name': 'instance-state-name', 'Values': ['stopped']}])
     for instance in instances:
         print(instance.id, instance.instance_type)
+    print("\n")
 
 def create_instance():
+    print("\n")
     print("Welcome to the instance creation wizard /n")
     choice=int(input("Please select from the following three choices.\n 1)Linux EC2 instance with all services enabled (Not Recommended) \n 2) Database Server \n3) Web Server \n4) Custom Selection "))
     if choice==1:
@@ -41,31 +48,71 @@ def create_instance():
         var_instance_type=input("Which type of instance do you want? instance type: 1)general purpose(t2.micro) 2)compute optimized(c3.large), 3)memory optimized(r3.large), 4)storage optimized(d2.large), 5)GPU instances(g2.2xlarge)")
         number_of_instances=int(input("How many instances do you want to create?"))
         ec2.create_instances(ImageId="ami-c229c0a2", MinCount=number_of_instances, MaxCount=number_of_instances, SecurityGroupIds=[var_security_group],InstanceType=var_instance_type,KeyName=var_key_name,DisableApiTermination=var_api_termination,Monitoring={'Enabled': var_monitoring})
+        print("Instances have been created\n")
         
 def terminate_instance():
+    print("\n")
     instance_list=[]
     print("The following is the list of stopped instances")
     show_stopped_instances()
     while True:
-        instance=input("\nInput the name of the instance to terminate OR type exit")
+        instance=input("\nInput the ID of the instance you terminate. You can enter multiple instances. Type <exit> when you are done")
         if instance=="exit":
             break
         instance_list.append(instance)
     try:
         ec2.instances.terminate(DryRun=False,InstanceIds=instance_list)
+        print("Instances successfully terminated")
     except:
-        print("You do not have the permission to terminate this instance")
+        print("Either you do not have the permission to terminate this instance or you entered incorrect instance name")
+    print("\n")
 
 def create_key_pair(key_name):
+    print("\n")
     key_pair = ec2.create_key_pair(KeyName=key_name)
     key_string=key_pair.key_material
     complete_path="C:\\Users\\Saim\\Desktop\\"+key_name+".pem"
     fh=open(complete_path,"w")
     fh.write(key_string)
-    
+    print("Private key has been saved to your desktop\n")  
+      
 def main():
-    
-    
+    while True:
+        
+        choice=input("\nPlease select an option from the following:\n 1) Show Running Instances\n 2) Show status running instances\n 3) Show stopped instances\n 4) Enter instance creation wizard\n 5) Terminate an instance\n 6) Create and download private key\n 7) Exit\n")
+        if choice=="1":
+            show_running_instances()
+            continue
+        elif choice=="2":
+            show_instance_status()
+            continue
+        elif choice=="3":
+            show_stopped_instances()
+            continue
+        elif choice=="4":
+            create_instance()
+            continue
+        elif choice=="5":
+            terminate_instance()
+            continue
+        elif choice=="6":
+            while True:
+                try:    
+                    key_name=input("Enter the name of the key-pair")
+                    break
+                except:
+                    print("Please try again")
+                    continue
+            create_key_pair(key_name)
+        elif choice=="7":
+            print("\nEnd of the program\n")
+            raise SystemExit
+        else:
+            print("Invalid choice. Please try again.")
+            continue
+
+if __name__=="__main__":
+    main()
 #create_key_pair("saim0key")
 #terminate_instance()    
 #show_stopped_instances()
