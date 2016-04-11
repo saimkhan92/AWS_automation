@@ -1,4 +1,5 @@
 import boto3
+from idlelib.EditorWindow import keynames
 ec2 = boto3.resource("ec2")
 
 def show_running_instances():
@@ -8,13 +9,15 @@ def show_running_instances():
 
 def show_instance_status():   
     for status in ec2.meta.client.describe_instance_status()['InstanceStatuses']:
-        print(status)
-        
+        print(type(status))
+        print("INSTANCE ID"+"     "+"AVAILABILITY ZONE"+"     "+"STATUS"+"     "+"SYSTEM CHECKS(OK or IMPAIRED)"+"\n")
+        print(status["InstanceId"]+"         "+status['AvailabilityZone']+"         "+status['InstanceState']["Name"]+"         "+status['SystemStatus']['Status']+"\n")
+
 def show_stopped_instances():
     instances = ec2.instances.filter(Filters=[{'Name': 'instance-state-name', 'Values': ['stopped']}])
     for instance in instances:
         print(instance.id, instance.instance_type)
-    
+
 def create_instance():
     print("Welcome to the instance creation wizard /n")
     choice=int(input("Please select from the following three choices.\n 1)Linux EC2 instance with all services enabled (Not Recommended) \n 2) Database Server \n3) Web Server \n4) Custom Selection "))
@@ -30,7 +33,10 @@ def create_instance():
         #if not already present, create new 
         var_monitoring=bool(input("Do you want to enable system monitoring \n 1) True   2) False "))
         var_api_termination=bool(input("Do you want to disable Api Terminate? \n 1) True   2) False "))
-        var_key_name=input("Enter the name of the key pair you want to use (ubuntu_key_pair)")
+        var_key_name=input("Enter the name of the key pair you want to use. (ubuntu_key_pair) Type create_new if you want to create a new key pair.")
+        if var_key_name=="create_new":
+            name=input("Enter the name of the key you want to create")
+            create_key_pair(name)
         var_instance_type=input("Which type of instance do you want? instance type: 1)general purpose(t2.micro) 2)compute optimized(c3.large), 3)memory optimized(r3.large), 4)storage optimized(d2.large), 5)GPU instances(g2.2xlarge)")
         number_of_instances=int(input("How many instances do you want to create?"))
         ec2.create_instances(ImageId="ami-c229c0a2", MinCount=number_of_instances, MaxCount=number_of_instances, SecurityGroupIds=[var_security_group],InstanceType=var_instance_type,KeyName=var_key_name,    DisableApiTermination=var_api_termination,Monitoring={'Enabled': var_monitoring})
@@ -48,8 +54,19 @@ def terminate_instance():
         
     ec2.instances.terminate(DryRun=False,InstanceIds=instance_list)
 
-terminate_instance()    
-#show_instances()
+def create_key_pair(key_name):
+    key_pair = ec2.create_key_pair(KeyName=key_name)
+    key_string=key_pair.key_material
+    fh=open(key_name+".pem","w")
+    fh.write(key_string)
+    
+    
+    
+    
+#create_key_pair("saimkey")
+#terminate_instance()    
+#show_stopped_instances()
 #create_instance("ami-1719f677")
 #create_instance("ami-08111162")
 #create_instance()
+#show_instance_status()
