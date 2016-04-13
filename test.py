@@ -28,25 +28,49 @@ def show_stopped_instances():
 def create_instance():
     print("\n")
     print("Welcome to the instance creation wizard /n")
-    choice=int(input("Please select from the following three choices.\n 1)Linux EC2 instance with all services enabled (Not Recommended) \n 2) Database Server \n3) Web Server \n4) Custom Selection "))
+    choice=int(input("Please select from the following three choices.\n 1) Linux EC2 instance with all services enabled (Not Recommended) \n 2) Database Server \n 3) Web Server \n 4) Custom Selection "))
     if choice==1:
-        ec2.create_instances(ImageId="ami-c229c0a2", MinCount=1, MaxCount=1, SecurityGroupIds=['sg-c23a7ea5'],InstanceType='t1.micro')
+        ec2.create_instances(ImageId="ami-c229c0a2", MinCount=1, MaxCount=1, SecurityGroupIds=['sg-c23a7ea5'],InstanceType='t2.micro')
     elif choice==2:
-        ec2.create_instances(ImageId="ami-c229c0a2", MinCount=1, MaxCount=1, SecurityGroupIds=['sg-cdd89caa'],InstanceType='t1.micro')
+        ec2.create_instances(ImageId="ami-c229c0a2", MinCount=1, MaxCount=1, SecurityGroupIds=['sg-cdd89caa'],InstanceType='t2.micro')
     elif choice==3:
-        ec2.create_instances(ImageId="ami-c229c0a2", MinCount=1, MaxCount=1, SecurityGroupIds=['sg-e0d89c87'],InstanceType='t1.micro')
+        ec2.create_instances(ImageId="ami-c229c0a2", MinCount=1, MaxCount=1, SecurityGroupIds=['sg-e0d89c87'],InstanceType='t2.micro')
     elif choice==4:
         print("You have chosen the custom instance creation option")
         var_security_group=input("Specify the security group for this machine 1,2,3 or 4\n 1) Open(sg-c23a7ea5) 2) Database Security settings(sg-cdd89caa)  3) Web server security settings(sg-e0d89c87)")
-        var_monitoring=bool(input("Do you want to enable system monitoring \n 1) True   2) False "))
-        var_api_termination=bool(input("Do you want to disable Api Terminate? \n 1) True   2) False "))
-        var_key_name=input("Enter the name of the key pair you want to use. (ubuntu_key_pair) Type create_new if you want to create a new key pair.")
+        
+        var_monitoring1=input("Do you want to enable system monitoring \n 1) True   2) False ")
+        if var_monitoring1=="1":
+            var_monitoring=True
+        elif var_monitoring1=="2":
+            var_monitoring=False
+            
+        var_api_termination1=bool(input("Do you want to disable Api Terminate? \n 1) True   2) False "))
+        if var_api_termination1=="1":
+            var_api_termination=True
+        elif var_api_termination1=="2":
+            var_api_termination=False
+            
+        var_key_name=input("Enter the name of the key pair you want to use. (ubuntu_key_pair) Type create_new if you want to create a new key pair. Please select a preexisting key-pair")
         if var_key_name=="create_new":
             name=input("Enter the name of the key you want to create")
             create_key_pair(name)
             print("The private key has been saved in your desktop")
-        var_instance_type=input("Which type of instance do you want? instance type: 1)general purpose(t2.micro) 2)compute optimized(c3.large), 3)memory optimized(r3.large), 4)storage optimized(d2.large), 5)GPU instances(g2.2xlarge)")
+            
+        var_instance_type1=input("Which type of instance do you want? instance type: 1)general purpose 2)compute optimized 3)memory optimized 4)storage optimized 5)GPU instances(g2.2xlarge)")
+        if var_instance_type1=="1":
+            var_instance_type="t2.micro"
+        elif var_instance_type1=="2":
+            var_instance_type="c3.large"
+        elif var_instance_type1=="3":
+            var_instance_type="r3.large"
+        elif var_instance_type1=="4":
+            var_instance_type="d2.large"
+        elif var_instance_type1=="5":
+            var_instance_type="g2.2xlarge"
+            
         number_of_instances=int(input("How many instances do you want to create?"))
+        
         ec2.create_instances(ImageId="ami-c229c0a2", MinCount=number_of_instances, MaxCount=number_of_instances, SecurityGroupIds=[var_security_group],InstanceType=var_instance_type,KeyName=var_key_name,DisableApiTermination=var_api_termination,Monitoring={'Enabled': var_monitoring})
         print("Instances have been created\n")
         
@@ -71,14 +95,13 @@ def create_key_pair(key_name):
     print("\n")
     key_pair = ec2.create_key_pair(KeyName=key_name)
     key_string=key_pair.key_material
-    complete_path="C:\\Users\\Saim\\Desktop\\"+key_name+".pem"
-    fh=open(complete_path,"w")
+    complete_path="C:\\Users\\Saim\\Desktop\\"+key_name+".pem"                          
+    fh=open(complete_path,"w")                                      #
     fh.write(key_string)
     print("Private key has been saved to your desktop\n")  
       
 def main():
     while True:
-        
         choice=input("\nPlease select an option from the following:\n 1) Show Running Instances\n 2) Show status running instances\n 3) Show stopped instances\n 4) Enter instance creation wizard\n 5) Terminate an instance\n 6) Create and download private key\n 7) Exit\n")
         if choice=="1":
             show_running_instances()
@@ -113,6 +136,8 @@ def main():
 
 if __name__=="__main__":
     main()
+
+# Functions as comments for testing purpose
 #create_key_pair("saim0key")
 #terminate_instance()    
 #show_stopped_instances()
