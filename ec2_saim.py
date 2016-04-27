@@ -37,15 +37,22 @@ def create_instance():
         ec2.create_instances(ImageId="ami-c229c0a2", MinCount=1, MaxCount=1, SecurityGroupIds=['sg-e0d89c87'],InstanceType='t2.micro')
     elif choice==4:
         print("You have chosen the custom instance creation option")
-        var_security_group=input("Specify the security group for this machine 1,2,3 or 4\n 1) Open(sg-c23a7ea5) 2) Database Security settings(sg-cdd89caa)  3) Web server security settings(sg-e0d89c87)\n")
-        
+        var_security_group1=input("Specify the security group for this machine 1,2,3 or 4\n 1) Open(sg-c23a7ea5) 2) Database Security settings(sg-cdd89caa)  3) Web server security settings(sg-e0d89c87)\n")
+        if var_security_group1=="1":
+            var_security_group="sg-c23a7ea5"
+        elif var_security_group1=="2":
+            var_security_group="sg-cdd89caa"
+        elif var_security_group1=="3":
+            var_security_group="sg-e0d89c87"
+
+            
         var_monitoring1=input("Do you want to enable system monitoring \n 1) True   2) False \n")
         if var_monitoring1=="1":
             var_monitoring=True
         elif var_monitoring1=="2":
             var_monitoring=False
             
-        var_api_termination1=bool(input("Do you want to disable Api Terminate? \n 1) True   2) False \n"))
+        var_api_termination1=input("Do you want to disable Api Terminate? \n 1) True   2) False \n")
         if var_api_termination1=="1":
             var_api_termination=True
         elif var_api_termination1=="2":
@@ -56,6 +63,7 @@ def create_instance():
             name=input("Enter the name of the key you want to create")
             create_key_pair(name)
             print("The private key has been saved in your desktop")
+            var_key_name=name
             
         var_instance_type1=input("Which type of instance do you want? instance type: 1)general purpose 2)compute optimized 3)memory optimized 4)storage optimized 5)GPU instances(g2.2xlarge)\n")
         if var_instance_type1=="1":

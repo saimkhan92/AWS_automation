@@ -19,11 +19,11 @@ def Main():
     global local_conv_dir
     
     #Local directory where the transcoded videos will be downloaded
-    local_conv_dir='D:\\NetMan\\ConvertedLocal'
+    local_conv_dir='E:\\transcode_out'
     global local_unconv_dir
     
     #Local directory from where the raw videos  will be pushed to the S3 bucket for transcoding
-    local_unconv_dir='D:\\NetMan\\UnconvertedLocal'
+    local_unconv_dir='E:\\transcode_in'
     global file_path
     
     # Only .mp4 files will fetched and pushed to the S3 bucket
@@ -32,7 +32,7 @@ def Main():
     global my_role
     
     # This creates a IAM role to which we will add permissions to access S3, SNS and SQS
-    my_role='transcode_iam'
+    my_role='transcode_saim_iam'
     global s3
     s3=boto3.resource('s3')
     print(s3)
@@ -41,15 +41,15 @@ def Main():
     global s3_in
     
     # This is the input bucket to which the files will be pushed
-    s3_in='mytranscodein'
+    s3_in='mytranscodeinsaim'
     global s3_out
     
     # This is the output bucket from which the files will be downloaded
-    s3_out='mytranscodeout'
+    s3_out='mytranscodeoutsaim'
     global queue_name
     
     # We create a SQS queue to which the SNS messages will be pushed
-    queue_name='transcode_sqs'
+    queue_name='transcode_sqssaim'
     
     global iam_policy
     global attach_policy
@@ -117,7 +117,7 @@ def Main():
     global pipeline_name
     
     #this is the name of the pipe that will be used to transcode pipe
-    pipeline_name='transcode_pipe'
+    pipeline_name='transcode_pipesaim'
     #global topic_arn
     global my_role_new
     
@@ -328,13 +328,13 @@ def check_aws(s3_obj):
 #    conn=boto3.client('s3')
 #    transfer=S3Transfer(conn)
     if not s3_bucket_exists(s3_in,s3_obj):
-        conn.create_bucket(Bucket='mytranscodein')
+        conn.create_bucket(Bucket='mytranscodeinsaim')
         
         
         
     if not s3_bucket_exists(s3_out,s3_obj):
         
-        conn.create_bucket(Bucket='mytranscodeout')
+        conn.create_bucket(Bucket='mytranscodeoutsaim')
     global topic_arn                                                                        
     topic_arn=create_sns_topic()
     #print("This is arn")
