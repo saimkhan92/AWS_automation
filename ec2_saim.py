@@ -1,4 +1,5 @@
 # Program to automate various functions of AWS EC2 including instance creation, key-pair generation, instance termination, status check etc.
+# This part of the project was developed by Saim Khan
 
 import boto3
 ec2 = boto3.resource("ec2")
